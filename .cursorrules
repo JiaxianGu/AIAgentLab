@@ -9,8 +9,9 @@
 # Lessons
 
 ## User Specified Lessons
-
 - You have a python venv in ./.venv. Always use it when running python scripts. You need to activate it first. Use `pip install` to install packages. 
 - Include info useful for debugging in the program output.
+
+## Cursor learned
 
 # Scratchpad
