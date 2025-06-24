@@ -49,3 +49,13 @@ pip freeze > requirements.txt
 ```bash
 pip install -r requirements.txt
 ```
+
+## 代码版本控制
+
+### 更新本地代码
+
+当 GitHub 上的远程仓库有新的提交记录，而您本地的仓库需要同步这些更新时，请使用以下命令。该命令会从远程仓库拉取最新的代码并合并到您当前的工作分支。
+
+```bash
+git pull
+```
