@@ -1,10 +1,16 @@
 # Instructions
 
 * During you interaction with the user, if you find anything reusable in this project (e.g. version of a library, model name), especially about a fix to a mistake you made or a correction you received, you should take note in the `Lessons` section in the `.cursorrules` file so you will not make the same mistake again. 
-* You should also use the `.cursorrules` file as a scratchpad to organize your thoughts. Especially when you receive a new task, you should first review the content of the `scratchpad` section, clear old unrelated taska if necessary, first explain the task, and plan the steps you need to take to complete the task. You can use todo markers to indicate the progress, e.g.
+* You should also use the `.cursorrules` file as a scratchpad to organize your thoughts. Especially when you receive a new task, you should first review the content of the `scratchpad` section, clear old unrelated tasks if necessary. Understand the new task, and plan the steps you need to take to complete the task, then update the `scratchpad`. You can use todo markers to indicate the progress, e.g.
 [X] Task 1
 [ ] Task 2
 * Also update the progress of the task in the Scratchpad when you finish a subtask. Especially when you finished a milestone, it will help to improve your depth of task accomplishment to use the scratchpad to reflect and plan. The goal is to help you maintain a big picture as well as the progress of the task. Always refer to the Scratchpad when you plan the next step.
+
+## task specified instructions
+* Write the code in ./aws_saa_study
+* Deal with all encoding using UTF-8
+* The application name is anki
+* The user is using windows 11.
 
 # Lessons
 
@@ -14,5 +20,32 @@
 - Read the file before you try to edit it.
 
 ## Cursor learned
+- 
 
 # Scratchpad
+
+## Current Task: Automate Content Extraction from Anki Application
+[X] Create Python script to interact with Windows GUI application
+[X] Implement button clicking for "显示答案" and "重来"
+[X] Implement text selection and copying from "单选题"/"多选题" to "正确答案: X;"
+[X] Save copied content to txt file
+[X] Repeat process 100 times
+
+### Technical Requirements:
+- Use pyautogui for GUI automation ✓
+- Use pyperclip for clipboard operations ✓
+- Handle UTF-8 encoding for Chinese text ✓
+- Add proper delays for UI responsiveness ✓
+- Include error handling and debugging output ✓
+
+### Task Completed!
+Created two versions:
+1. Basic version (extract_anki_content.py) - uses keyboard shortcuts
+2. Advanced version (extract_anki_content_advanced.py) - includes OCR support
+
+Both scripts will:
+- Automate 100 cycles of content extraction
+- Save to timestamped text files
+- Include comprehensive error handling
+- Provide debug output for troubleshooting
+
