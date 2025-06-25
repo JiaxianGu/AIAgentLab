@@ -7,10 +7,10 @@
 - Also update the progress of the task in the Scratchpad when you finish a subtask. Especially when you finished a milestone, it will help to improve your depth of task accomplishment to use the scratchpad to reflect and plan. The goal is to help you maintain a big picture as well as the progress of the task. Always refer to the Scratchpad when you plan the next step.
 
 ## task specified instructions
-- Write the code in ./aws_saa_study
-- Deal with all encoding using UTF-8
-- The application name is anki
-- The user is using windows 11.
+- You need to read interactive brokers' API tutorial and write it down in a markdown file under TWS_API_Python_Guide.md under ./knowledge_bank.
+- When you write it down, consider the format. The format should be easy to read for human and also for LLM.
+- Read the webpage by your intelligence, do not try to read it using a program.
+- Take into consider that I will need to let LLM to refer to the md file to write code.
 
 # Lessons
 
@@ -23,29 +23,12 @@
 - 
 
 # Scratchpad
-
-## Current Task: Automate Content Extraction from Anki Application
-[X] Create Python script to interact with Windows GUI application
-[X] Implement button clicking for "显示答案" and "重来"
-[X] Implement text selection and copying from "单选题"/"多选题" to "正确答案: X;"
-[X] Save copied content to txt file
-[X] Repeat process 100 times
-
-### Technical Requirements:
-- Use pyautogui for GUI automation ✓
-- Use pyperclip for clipboard operations ✓
-- Handle UTF-8 encoding for Chinese text ✓
-- Add proper delays for UI responsiveness ✓
-- Include error handling and debugging output ✓
-
-### Task Completed!
-Created two versions:
-1. Basic version (extract_anki_content.py) - uses keyboard shortcuts
-2. Advanced version (extract_anki_content_advanced.py) - includes OCR support
-
-Both scripts will:
-- Automate 100 cycles of content extraction
-- Save to timestamped text files
-- Include comprehensive error handling
-- Provide debug output for troubleshooting
-
+[X] Create the TWS API Python Guide markdown file.
+    [X] Create the file `knowledge_bank/TWS_API_Python_Guide.md`.
+    [X] Add the main title and section titles from the category page.
+    [X] Leave content empty for now.
+[ ] Populate the content for each section of the guide.
+    [X] Added content for "Introduction to the TWS Python API" from lesson 1
+    [X] Added content for "Setting up the TWS Python API" from lesson 2
+    [X] Added content for "Downloading & Installing the TWS Python API" from lesson 3
+    [ ] Add content for remaining sections from subsequent lessons

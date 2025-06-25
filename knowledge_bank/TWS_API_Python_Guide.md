@@ -1,490 +1,347 @@
-# TWS API Python 指南
+# Interactive Brokers Python TWS API Guide
 
-本文档整理自 [IBKR TWS API 文档](https://www.interactivebrokers.com/campus/ibkr-api-page/twsapi-doc/)，专注于 Python 编程语言。
+## Introduction to the TWS Python API
 
-## 目录
-1.  [简介](#简介)
-2.  [注意事项与限制](#注意事项与限制)
-3.  [下载 TWS 或 IB Gateway](#下载-tws-或-ib-gateway)
-4.  [TWS 设置](#tws-设置)
-5.  [下载 TWS API](#下载-tws-api)
-6.  [TWS API 基础教程](#tws-api-基础教程)
-7.  [第三方 API 平台](#第三方-api-平台)
-8.  [特殊配置](#特殊配置)
-9.  [故障排除与支持](#故障排除与支持)
-10. [架构](#架构)
-11. [调用频率限制](#调用频率限制)
-12. [连接性](#连接性)
-13. [账户与投资组合数据](#账户与投资组合数据)
-14. [公告](#公告)
-15. [合约详情](#合约详情)
-16. [订单管理](#订单管理)
-17. [市场数据](#市场数据)
-18. [市场扫描器](#市场扫描器)
-19. [基本面数据](#基本面数据)
-20. [新闻](#新闻)
+### What is the TWS API?
 
----
+The TWS API (Trader Workstation Application Programming Interface) is Interactive Brokers' solution for programmatic trading and market data access. It allows developers to build custom trading applications that can connect directly to IBKR's trading systems.
 
-## 简介
+#### Key Features of the TWS API:
 
-TWS API 使得用户可以构建自动化的交易应用程序，利用 IBKR 的高速订单路由和广泛的市场深度。
+- **Real-time Market Data**: Access to live quotes, market depth, and historical data
+- **Order Management**: Place, modify, and cancel orders programmatically
+- **Account Information**: Retrieve portfolio positions, account balances, and P&L data
+- **Multi-Asset Support**: Trade stocks, options, futures, forex, bonds, and more
+- **Global Markets**: Access to over 150 markets worldwide
+- **Multiple Programming Languages**: Support for Python, Java, C++, C#, and more
 
-您可以：
-*   从 TWS 获取实时市场数据。
-*   将交易订单发送到 IBKR 系统。
-*   监控您的订单状态和投资组合。
+#### How the TWS API Works:
 
-## 注意事项与限制
+The TWS API uses a client-server architecture where:
+1. **TWS (Trader Workstation)** or **IB Gateway** acts as the server
+2. Your **Python application** acts as the client
+3. Communication happens through **socket connections** using IBKR's proprietary protocol
 
-### 要求
-*   一个 IBKR 交易账户。
-*   安装了 Trader Workstation (TWS) 或 IB Gateway。
-*   TWS API 的 Python 客户端库。
+#### Benefits for Algorithmic Trading:
 
-### 限制
-*   **模拟账户**: 模拟账户（Paper Trading Account）与真实账户的运作方式几乎相同，但可能会有一些环境上的差异。
-*   **数据订阅**: 模拟账户需要单独订阅市场数据。
+- **Automation**: Execute trading strategies without manual intervention
+- **Speed**: Faster order execution compared to manual trading
+- **Backtesting**: Test strategies using historical data
+- **Risk Management**: Implement automated risk controls
+- **Scalability**: Manage multiple strategies and instruments simultaneously
 
-## 下载 TWS 或 IB Gateway
+#### Prerequisites:
 
-您需要安装 TWS 或 IB Gateway。
-*   **TWS**: 功能齐全的交易平台，包含图形用户界面。
-*   **IB Gateway**: 轻量级的版本，没有完整的交易界面，主要用于 API 连接，消耗更少的资源。
+- Active IBKR account with API access enabled
+- TWS or IB Gateway installed and configured
+- Python environment with the `ibapi` library
+- Basic understanding of financial markets and trading concepts
 
-建议在开发和生产环境中使用 IB Gateway。
+*Source: [Interactive Brokers Campus - What is the TWS API?](https://www.interactivebrokers.com/campus/trading-lessons/what-is-the-tws-api/)*
 
-## TWS 设置
+## Setting up the TWS Python API
 
-为了使 API 能够连接，您需要在 TWS 或 IB Gateway 中进行配置：
+### Installing & Configuring TWS for the API
 
-1.  打开 **File -> Global Configuration**。
-2.  在左侧面板选择 **API -> Settings**。
-3.  勾选 **Enable ActiveX and Socket Clients**。
-4.  取消勾选 **Read-Only API**，除非您只需要只读权限。
-5.  在 **Socket Port** 中记下端口号。默认情况下，TWS 正式账户为 `7496`，模拟账户为 `7497`。IB Gateway 正式账户为 `4001`，模拟账户为 `4002`。
-6.  在 **Trusted IP Addresses** 中，添加 `127.0.0.1` 以允许本地连接。
+Before you can use the TWS Python API, you need to properly install and configure either TWS (Trader Workstation) or IB Gateway. This lesson covers the essential setup steps to enable API connectivity.
 
-### 最佳实践配置
-*   **永不锁定 TWS**: 在 **Lock and Exit** 设置中，取消勾选 "Auto-lock Trader Workstation"。
-*   **内存分配**: 根据需要调整 TWS 的内存分配。
-*   **每日/每周重新认证**: 了解 TWS 的自动重启和重新认证机制。
+#### Step 1: Download and Install TWS or IB Gateway
 
-## 下载 TWS API
+You have two options for connecting to the IBKR trading system:
 
-1.  访问 [TWS API 文档页面](https://www.interactivebrokers.com/campus/ibkr-api-page/twsapi-doc/)。
-2.  找到下载部分，下载 TWS API 源代码。
-3.  解压后，找到 `source/pythonclient` 目录。
+1. **TWS (Trader Workstation)**: Full-featured trading platform with GUI
+   - Download from: [IBKR TWS Download Page](https://www.interactivebrokers.com/en/trading/tws.php)
+   - Larger memory footprint but includes all trading tools
+   - Recommended for beginners and interactive development
 
-### 在 Windows/Mac/Linux 上安装
-安装 Python API 客户端的标准方法是使用 `setup.py`。
+2. **IB Gateway**: Lightweight, headless application
+   - Download from: [IBKR Gateway Download Page](https://www.interactivebrokers.com/en/trading/ibgateway-stable.php)
+   - Minimal resource usage, no GUI
+   - Recommended for production automated trading systems
 
-1.  打开终端或命令行工具。
-2.  导航到 `TWS API/source/pythonclient` 目录。
-3.  运行安装命令：
-    ```bash
-    python setup.py install
-    ```
+#### Step 2: Enable API Access in Your IBKR Account
 
-这将把 `ibapi` 包安装到您的 Python 环境中。
+1. Log into your IBKR Client Portal
+2. Navigate to **Settings** → **Account Settings** → **Trading Permissions**
+3. Enable **API** trading permissions
+4. Set appropriate trading permissions for the asset classes you plan to trade
 
-## TWS API 基础教程
+#### Step 3: Configure TWS/Gateway for API Connections
 
-这是一个基本的 Python 应用结构，用于连接 TWS，请求数据并接收数据。
+Once TWS or Gateway is installed and running:
+
+1. **Access API Settings**:
+   - In TWS: Go to **File** → **Global Configuration** → **API** → **Settings**
+   - In Gateway: Settings are available in the login screen under **Configure** → **Settings** → **API**
+
+2. **Enable API Connections**:
+   - Check **"Enable ActiveX and Socket Clients"**
+   - Set **Socket Port** (default: 7497 for TWS, 4001 for Gateway)
+   - For paper trading, use port 7497 (TWS) or 4002 (Gateway)
+
+3. **Configure Security Settings**:
+   - **Trusted IPs**: Add IP addresses that can connect (use 127.0.0.1 for local connections)
+   - **Master API Client ID**: Set if you want one client to control others
+   - **Read-Only API**: Enable if you only need market data (no trading)
+
+#### Step 4: API Connection Parameters
+
+Key settings to configure:
+
+- **Port Numbers**:
+  - TWS Live: 7496
+  - TWS Paper: 7497
+  - Gateway Live: 4001
+  - Gateway Paper: 4002
+
+- **Client ID**: Unique identifier for your API application (0-32 for manual trading clients)
+
+- **Socket Client Settings**:
+  - Enable **"Download open orders on connection"**
+  - Set **"Auto restart"** for production environments
+  - Configure **"Logging Level"** for debugging
+
+#### Step 5: Security Considerations
+
+**Important Security Settings**:
+
+1. **Firewall Configuration**: Only allow necessary IP addresses
+2. **Authentication**: Use strong passwords and 2FA
+3. **Network Security**: Consider VPN for remote connections
+4. **Client Validation**: Implement proper error handling in your code
+
+#### Step 6: Testing the Connection
+
+Before proceeding to Python development:
+
+1. Start TWS/Gateway and log in
+2. Verify API settings are enabled
+3. Check that the correct port is open and listening
+4. Test with a simple telnet connection: `telnet localhost 7497`
+
+#### Common Configuration Issues
+
+**Troubleshooting Tips**:
+
+- **Connection Refused**: Check if API is enabled and correct port is used
+- **Authentication Failed**: Verify account has API permissions
+- **Timeout Errors**: Ensure firewall isn't blocking the connection
+- **Multiple Connections**: Each client needs a unique Client ID
+
+#### Production vs Paper Trading
+
+**Paper Trading Setup**:
+- Use for testing and development
+- No real money at risk
+- Same API functionality as live trading
+- Separate port numbers (7497 for TWS, 4002 for Gateway)
+
+**Live Trading Setup**:
+- Use only after thorough testing
+- Implement proper risk management
+- Monitor positions and orders carefully
+- Use ports 7496 (TWS) or 4001 (Gateway)
+
+*Source: [Interactive Brokers Campus - Installing & Configuring TWS for the API](https://www.interactivebrokers.com/campus/trading-lessons/installing-configuring-tws-for-the-api/)*
+
+### Downloading & Installing the TWS Python API
+
+After configuring TWS or IB Gateway, the next step is to obtain and install the Python API library that allows your Python applications to communicate with the trading platform.
+
+#### Method 1: Install via pip (Recommended)
+
+The easiest way to install the TWS Python API is using pip:
+
+```bash
+pip install ibapi
+```
+
+For specific versions:
+```bash
+pip install ibapi==10.19.01
+```
+
+**Advantages of pip installation:**
+- Simple, one-command installation
+- Automatic dependency management
+- Easy to update and manage versions
+- Works with virtual environments
+
+#### Method 2: Download from Interactive Brokers
+
+You can also download the API source code directly from IBKR:
+
+1. **Download Location**: 
+   - Visit [IBKR API Downloads](https://www.interactivebrokers.com/en/trading/ib-api.php)
+   - Navigate to **API Downloads** section
+   - Select **Python** from the available languages
+
+2. **API Package Contents**:
+   - `ibapi/` - Core API library files
+   - `samples/` - Example Python scripts
+   - `documentation/` - API reference materials
+   - Setup and installation files
+
+3. **Manual Installation**:
+   ```bash
+   # Extract the downloaded archive
+   unzip IBJts_Python_API.zip
+   
+   # Navigate to the Python API directory
+   cd IBJts/source/pythonclient
+   
+   # Install the package
+   python setup.py install
+   ```
+
+#### Method 3: Development Installation
+
+For developers who want to modify the API or work with the latest version:
+
+```bash
+# Clone or download the source
+# Navigate to the pythonclient directory
+cd IBJts/source/pythonclient
+
+# Install in development mode
+pip install -e .
+```
+
+#### Python Environment Setup
+
+**Virtual Environment (Recommended)**:
+```bash
+# Create virtual environment
+python -m venv tws_api_env
+
+# Activate virtual environment
+# On Windows:
+tws_api_env\Scripts\activate
+# On macOS/Linux:
+source tws_api_env/bin/activate
+
+# Install the API
+pip install ibapi
+```
+
+#### Verifying the Installation
+
+Test your installation with a simple import:
+
+```python
+try:
+    from ibapi.client import EClient
+    from ibapi.wrapper import EWrapper
+    from ibapi.contract import Contract
+    print("TWS API successfully installed!")
+except ImportError as e:
+    print(f"Installation failed: {e}")
+```
+
+#### Core API Components
+
+The TWS Python API consists of several key modules:
+
+1. **EClient**: Sends requests to TWS/Gateway
+2. **EWrapper**: Handles responses from TWS/Gateway  
+3. **Contract**: Defines financial instruments
+4. **Order**: Defines trading orders
+5. **Commission**: Commission calculation utilities
+
+#### API Structure Overview
+
+```
+ibapi/
+├── client.py          # EClient class
+├── wrapper.py         # EWrapper class  
+├── contract.py        # Contract definitions
+├── order.py           # Order types and parameters
+├── common.py          # Common utilities and constants
+├── commission.py      # Commission calculations
+├── execution.py       # Trade execution details
+├── order_state.py     # Order status information
+└── scanner.py         # Market scanner functionality
+```
+
+#### Version Compatibility
+
+**Important Version Notes**:
+- Always use API versions compatible with your TWS/Gateway version
+- Check [API version compatibility](https://www.interactivebrokers.com/en/trading/ib-api.php) regularly
+- Newer API versions may have additional features but require updated TWS/Gateway
+
+#### Dependencies
+
+The TWS Python API has minimal dependencies:
+- **Python**: 3.6+ (recommended: 3.8+)
+- **Standard Library**: Uses only Python standard library modules
+- **No external dependencies** required for basic functionality
+
+#### Common Installation Issues
+
+**Troubleshooting Tips**:
+
+1. **Permission Errors**: Use `pip install --user ibapi` if you lack admin rights
+2. **Python Version**: Ensure you're using Python 3.6+
+3. **Virtual Environment**: Isolate installations to avoid conflicts
+4. **Firewall/Proxy**: Configure network settings if downloading fails
+5. **Multiple Python Versions**: Ensure you're installing to the correct Python environment
+
+#### Development Tools
+
+**Recommended Development Setup**:
+
+```bash
+# Install additional development tools
+pip install jupyter          # For interactive development
+pip install pandas          # For data manipulation  
+pip install matplotlib      # For plotting
+pip install numpy           # For numerical operations
+```
+
+#### Sample Code Structure
+
+Basic application structure after installation:
 
 ```python
 from ibapi.client import EClient
 from ibapi.wrapper import EWrapper
 from ibapi.contract import Contract
+import threading
+import time
 
-class TestApp(EWrapper, EClient):
+class IBApi(EWrapper, EClient):
     def __init__(self):
         EClient.__init__(self, self)
-
-    def error(self, reqId, errorCode, errorString, additionalInfo=''):
-        print("Error: ", reqId, " ", errorCode, " ", errorString, " ", additionalInfo)
-
-    def nextValidId(self, orderId: int):
-        # We can start sending requests once we have a valid ID.
-        self.start()
-
-    def start(self):
-        # Requesting market data
-        contract = Contract()
-        contract.symbol = "AAPL"
-        contract.secType = "STK"
-        contract.exchange = "SMART"
-        contract.currency = "USD"
-        contract.primaryExchange = "NASDAQ"
-
-        self.reqMktData(10, contract, "", False, False, [])
-
-    def stop(self):
-        self.done = True
-        self.disconnect()
         
-    def tickPrice(self, reqId, tickType, price, attrib):
-        print("Tick Price. Ticker Id:", reqId, "tickType:", tickType, "Price:", price)
+    def nextValidId(self, orderId: int):
+        super().nextValidId(orderId)
+        self.nextorderId = orderId
+        print(f'The next valid order id is: {orderId}')
 
+def run_loop():
+    app.run()
 
-def main():
-    app = TestApp()
-    app.connect("127.0.0.1", 7497, 0) # connect to TWS or IB Gateway
-    app.run() # EClient's loop
+app = IBApi()
+app.connect('127.0.0.1', 7497, 123)  # Paper trading port
 
-if __name__ == "__main__":
-    main()
+# Start the socket in a thread
+api_thread = threading.Thread(target=run_loop, daemon=True)
+api_thread.start()
+
+time.sleep(1)  # Sleep interval to allow time for connection
 ```
 
-## 第三方 API 平台
+*Source: [Interactive Brokers Campus - Accessing the TWS Python API Source Code](https://www.interactivebrokers.com/campus/trading-lessons/accessing-the-tws-python-api-source-code/)*
 
-除了官方的库，还有一些社区开发的 Python 库提供了更高级的抽象和便利性，例如：
-*   `ib_insync`: 一个流行的库，使用异步 (`asyncio`) IO 来简化编程模型。
-*   `ib_async`
+## Connecting to TWS with Python
 
-这些库通常更容易上手，但了解官方 API 的基础原理仍然很重要。
+## Requesting Contract Details with Python
 
-## 特殊配置
+## Requesting Market Data with Python
 
-### 更新 Python 解释器
-当新的 TWS API 版本发布时，您可能需要更新您环境中安装的 `ibapi` 包。
+## Placing an Order with Python
 
-1.  下载最新版本的 TWS API。
-2.  导航到 `TWS API/source/pythonclient`。
-3.  运行 `python setup.py install`。
+## Monitoring Order Status with Python
 
-这会覆盖旧版本。
-
-## 故障排除与支持
-
-### 日志文件
-*   **API 日志**: API 客户端库可以生成日志文件。
-*   **启用调试日志**: 在 `EClient` 连接时可以设置。
-*   **TWS 日志**: TWS 自身也会生成日志，对于解决连接问题非常有用。
-
-## 架构
-
-API 应用程序通过 TCP Socket 连接到 TWS 或 IB Gateway。您的应用程序是客户端，TWS 是服务器。所有的通信都通过这个 Socket 进行。
-
-### EReader 线程
-API 库使用一个独立的线程 (`EReader`) 来读取来自 TWS 的消息。这个线程在后台运行，解析消息并调用 `EWrapper` 中相应的回调函数。这就是为什么您的应用程序需要在一个循环中运行（`app.run()`），以保持 EReader 线程活跃并处理消息。
-
-## 调用频率限制
-
-TWS 对 API 消息的发送频率有限制，以防止系统过载。
-*   通常限制为每秒 50 条消息。
-*   这个限制是针对发送到 TWS 的消息，而不是接收的消息。
-*   如果您发送消息过快，TWS 会暂停处理您的请求，并最终可能断开连接。
-
-## 连接性
-
-### 建立连接
-使用 `EClient` 的 `connect()` 方法来建立连接。
-
-```python
-app.connect("127.0.0.1", 7497, clientId=0)
-```
-*   `host`: TWS/IB Gateway 运行的 IP 地址。
-*   `port`: TWS/IB Gateway 中配置的 Socket 端口。
-*   `clientId`: 唯一的客户端 ID。每个连接到 TWS 的 API 客户端必须有不同的 ID。
-
-### 验证连接
-`EClient` 的 `isConnected()` 方法可以检查连接状态。此外，成功连接后，TWS 会调用 `EWrapper` 的 `nextValidId()` 方法。这是您的应用程序可以开始发送请求的信号。
-
-### 断开连接
-使用 `disconnect()` 方法来关闭连接。
-
-```python
-app.disconnect()
-```
-
-## 账户与投资组合数据
-
-### 账户摘要
-请求账户摘要可以获取如净值、可用资金等信息。
-
-*   **请求**: `reqAccountSummary`
-*   **接收**: `accountSummary` 回调
-*   **取消**: `cancelAccountSummary`
-
-```python
-# In your EClient/EWrapper class
-def start(self):
-    # Requesting account summary
-    self.reqAccountSummary(9001, "All", "AccountType,NetLiquidation,TotalCashValue,SettledCash,AccruedCash,BuyingPower,EquityWithLoanValue,PreviousDayEquityWithLoanValue,GrossPositionValue,RegTEquity,RegTMargin,SMA,InitMarginReq,MaintMarginReq,AvailableFunds,ExcessLiquidity,Cushion,FullInitMarginReq,FullMaintMarginReq,FullAvailableFunds,FullExcessLiquidity,LookAheadNextChange,LookAheadInitMarginReq,LookAheadMaintMarginReq,LookAheadAvailableFunds,LookAheadExcessLiquidity,HighestSeverity,DayTradesRemaining,Leverage")
-
-def accountSummary(self, reqId: int, account: str, tag: str, value: str, currency: str):
-    print("AccountSummary. ReqId:", reqId, "Account:", account, "Tag: ", tag, "Value:", value, "Currency:", currency)
-```
-
-### 账户更新
-订阅账户值的持续更新。
-
-*   **请求**: `reqAccountUpdates`
-*   **接收**: `updateAccountValue`, `updatePortfolio`
-*   **取消**: `reqAccountUpdates(False, ...)`
-
-```python
-# In your EClient/EWrapper class
-def start(self):
-    # Requesting account updates
-    self.reqAccountUpdates(True, "YOUR_ACCOUNT_ID")
-
-def updateAccountValue(self, key: str, val: str, currency: str, accountName: str):
-    print("UpdateAccountValue. Key:", key, "Value:", val, "Currency:", currency, "Account:", accountName)
-
-def updatePortfolio(self, contract: Contract, position: float, marketPrice: float, marketValue: float, averageCost: float, unrealizedPNL: float, realizedPNL: float, accountName: str):
-    print("UpdatePortfolio. ", "Symbol:", contract.symbol, "SecType:", contract.secType, "Exchange:", contract.exchange, "Position:", position, "MarketPrice:", marketPrice, "MarketValue:", marketValue, "AverageCost:", averageCost, "UnrealizedPNL:", unrealizedPNL, "RealizedPNL:", realizedPNL, "AccountName:", accountName)
-```
-
-### 持仓
-请求当前所有持仓。
-
-*   **请求**: `reqPositions`
-*   **接收**: `position`
-*   **取消**: `cancelPositions`
-
-```python
-# In your EClient/EWrapper class
-def start(self):
-    self.reqPositions()
-
-def position(self, account: str, contract: Contract, position: float, avgCost: float):
-    print("Position. ", "Account:", account, "Symbol:", contract.symbol, "SecType:", contract.secType, "Currency:", contract.currency, "Position:", position, "Avg cost:", avgCost)
-
-def positionEnd(self):
-    print("PositionEnd")
-```
-
-### 盈亏 (PnL)
-请求单个持仓或整个账户的盈亏。
-
-*   **请求 PnL**: `reqPnL` (账户), `reqPnLSingle` (单个持仓)
-*   **接收 PnL**: `pnl`, `pnlSingle`
-*   **取消**: `cancelPnL`, `cancelPnLSingle`
-
-```python
-# In your EClient/EWrapper class
-def start(self):
-    # For a single position
-    self.reqPnLSingle(17001, "DU111111", "", 265598) # Example with conId
-
-def pnlSingle(self, reqId: int, pos: int, dailyPNL: float, unrealizedPNL: float, realizedPNL: float, value: float):
-    super().pnlSingle(reqId, pos, dailyPNL, unrealizedPNL, realizedPNL, value)
-    print("Daily PnL Single. ReqId:", reqId, "Position:", pos, "DailyPnL:", dailyPNL, "UnrealizedPNL:", unrealizedPNL, "RealizedPNL:", realizedPNL, "Value:", value)
-```
-
-## 公告
-订阅 IB 的新闻公告。
-
-*   **请求**: `reqNewsBulletins`
-*   **接收**: `updateNewsBulletin`
-
-```python
-# In your EClient/EWrapper class
-def start(self):
-    self.reqNewsBulletins(True)
-
-def updateNewsBulletin(self, msgId: int, msgType: int, newsMessage: str, originExch: str):
-    print("News Bulletins. MsgId:", msgId, "Type:", msgType, "Message:", newsMessage, "Exchange of Origin:", originExch)
-```
-
-## 合约详情
-获取特定合约的详细信息。
-
-*   **请求**: `reqContractDetails`
-*   **接收**: `contractDetails`, `contractDetailsEnd`
-
-```python
-# In your EClient/EWrapper class
-def start(self):
-    contract = Contract()
-    contract.symbol = "AAPL"
-    contract.secType = "STK"
-    contract.currency = "USD"
-    self.reqContractDetails(10, contract)
-
-def contractDetails(self, reqId: int, contractDetails):
-    print("ContractDetails. ReqId:", reqId, "Symbol:", contractDetails.contract.symbol)
-```
-
-## 订单管理
-这是 API 最核心的功能之一。
-
-### 获取有效订单 ID
-在下任何订单之前，必须从 `nextValidId` 回调中获取一个有效的订单 ID。
-
-```python
-# In your EWrapper
-def nextValidId(self, orderId: int):
-    super().nextValidId(orderId)
-    self.nextorderId = orderId
-    print("The next valid order id is: ", self.nextorderId)
-```
-
-### 下单
-使用 `placeOrder` 方法。需要一个 `Contract` 对象来定义产品，一个 `Order` 对象来定义订单参数。
-
-```python
-from ibapi.order import Order
-
-# ...
-# In your EClient/EWrapper class, after getting a valid orderId
-def place_new_order(self):
-    contract = Contract()
-    contract.symbol = "AAPL"
-    contract.secType = "STK"
-    contract.exchange = "SMART"
-    contract.currency = "USD"
-
-    order = Order()
-    order.action = "BUY"
-    order.totalQuantity = 100
-    order.orderType = "LMT"
-    order.lmtPrice = 150.00
-    order.orderId = self.nextorderId
-    
-    self.placeOrder(order.orderId, contract, order)
-    self.nextorderId += 1
-```
-
-### 订单状态
-订单状态通过 `orderStatus` 和 `openOrder` 回调来更新。
-
-*   `openOrder`: 提供订单的完整信息。
-*   `orderStatus`: 在订单状态改变时（如 `Submitted`, `Filled`）被调用。
-
-```python
-def openOrder(self, orderId, contract, order, orderState):
-    print("OpenOrder. ID:", orderId, contract.symbol, contract.secType, "@", contract.exchange, ":", order.action, order.orderType, order.totalQuantity, orderState.status)
-
-def orderStatus(self, orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice):
-    print("OrderStatus. Id:", orderId, "Status:", status, "Filled:", filled, "Remaining:", remaining, "AvgFillPrice:", avgFillPrice)
-```
-
-### 取消订单
-使用 `cancelOrder` 方法。
-
-```python
-self.cancelOrder(order_id_to_cancel)
-```
-
-## 市场数据
-
-### 实时数据
-请求实时跳动数据（tick-by-tick）。
-
-*   **请求**: `reqMktData`
-*   **接收**: `tickPrice`, `tickSize`, `tickString`, 等。
-*   **取消**: `cancelMktData`
-
-```python
-# In your EClient/EWrapper class
-def start(self):
-    contract = Contract()
-    contract.symbol = "EUR"
-    contract.secType = "CASH"
-    contract.currency = "GBP"
-    contract.exchange = "IDEALPRO"
-    self.reqMktData(1, contract, "", False, False, [])
-
-def tickPrice(self, reqId, tickType, price, attrib):
-    print("Tick Price. Ticker Id:", reqId, "tickType:", tickType, "Price:", price)
-
-def tickSize(self, reqId, tickType, size):
-    print("Tick Size. Ticker Id:", reqId, "tickType:", tickType, "Size:", size)
-```
-
-### 历史数据
-请求历史K线数据。
-
-*   **请求**: `reqHistoricalData`
-*   **接收**: `historicalData`
-*   **取消**: 无直接取消函数，请求完成后会自动停止。
-
-```python
-from datetime import datetime
-
-# In your EClient/EWrapper class
-def start(self):
-    contract = Contract()
-    contract.symbol = "AAPL"
-    contract.secType = "STK"
-    contract.exchange = "SMART"
-    contract.currency = "USD"
-    
-    queryTime = (datetime.today() - timedelta(days=180)).strftime("%Y%m%d %H:%M:%S")
-
-    self.reqHistoricalData(4001, contract, queryTime,
-                           "1 M", "1 day", "MIDPOINT", 0, 1, False, [])
-
-def historicalData(self, reqId, bar):
-    print("HistoricalData. ReqId:", reqId, "Date:", bar.date, "Open:", bar.open, "High:", bar.high, "Low:", bar.low, "Close:", bar.close, "Volume:", bar.volume, "Count:", bar.barCount, "WAP:", bar.wap)
-```
-
-## 市场扫描器
-从大量合约中筛选出符合特定标准的合约。
-
-*   **请求**: `reqScannerSubscription`
-*   **接收**: `scannerData`
-*   **取消**: `cancelScannerSubscription`
-
-```python
-from ibapi.scanner import ScannerSubscription
-
-# In your EClient/EWrapper class
-def start(self):
-    sub = ScannerSubscription()
-    sub.instrument = "STK"
-    sub.locationCode = "STK.US.MAJOR"
-    sub.scanCode = "TOP_PERC_GAIN"
-    
-    self.reqScannerSubscription(7001, sub, [], [])
-
-def scannerData(self, reqId, rank, contractDetails, distance, benchmark, projection, legsStr):
-    print("ScannerData. ReqId:", reqId, "Rank:", rank, "Symbol:", contractDetails.contract.symbol)
-```
-
-## 基本面数据
-请求公司的基本面数据。
-
-*   **请求**: `reqFundamentalData`
-*   **接收**: `fundamentalData`
-*   **取消**: `cancelFundamentalData`
-
-```python
-# In your EClient/EWrapper class
-def start(self):
-    contract = Contract()
-    contract.symbol = "AAPL"
-    contract.secType = "STK"
-    contract.exchange = "SMART"
-    contract.currency = "USD"
-    
-    # Report types: ReportsFinSummary, ReportsOwnership, ReportSnapshot, ReportsFinStatements, etc.
-    self.reqFundamentalData(8001, contract, "ReportsFinSummary", [])
-
-def fundamentalData(self, reqId, data):
-    print("FundamentalData. ReqId:", reqId, "Data:", data)
-
-```
-
-## 新闻
-订阅新闻源。
-
-*   **请求**: `reqNewsProviders`, `reqNewsArticle`
-*   **接收**: `newsProviders`, `newsArticle`
-
-```python
-# In your EClient/EWrapper class
-def start(self):
-    # First get provider codes
-    self.reqNewsProviders()
-    
-def newsProviders(self, newsProviders):
-    print("NewsProviders: ")
-    for provider in newsProviders:
-        print("Provider:", provider.providerCode, provider.providerName)
-    # Then request an article from a provider
-    # self.reqNewsArticle(...)
-``` 
+## Review of the TWS Python API 
